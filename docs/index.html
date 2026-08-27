@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SLM Agentic Incident Response</title>
+  <style>
+    :root {
+      --navy:#0b1220;
+      --panel:#121c2e;
+      --line:#263652;
+      --text:#eef4ff;
+      --muted:#9fb0ca;
+      --orange:#f6821f;
+      --green:#32d583;
+      --blue:#60a5fa;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      background:linear-gradient(135deg,#07101f,#101d32);
+      color:var(--text);
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+    }
+    header {
+      padding:28px 5vw 18px;
+      border-bottom:1px solid var(--line);
+    }
+    h1 { margin:0 0 8px; font-size:clamp(26px,4vw,42px); }
+    header p { margin:0; color:var(--muted); }
+    main { width:min(1400px,94vw); margin:24px auto 60px; }
+    .setup,.source,.agent {
+      background:rgba(18,28,46,.94);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px;
+    }
+    .setup { margin-bottom:18px; }
+    label { display:block; color:var(--muted); font-size:13px; margin-bottom:7px; }
+    input,select,textarea {
+      width:100%;
+      background:#091322;
+      color:var(--text);
+      border:1px solid #344764;
+      border-radius:9px;
+      padding:11px;
+      font:inherit;
+    }
+    textarea { min-height:145px; resize:vertical; }
+    .source { margin-bottom:18px; }
+    .source-grid { display:grid; grid-template-columns:240px 1fr; gap:16px; }
+    .flow {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+    .agent { position:relative; min-height:440px; }
+    .step {
+      color:var(--orange);
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.1em;
+    }
+    h2 { margin:8px 0 4px; font-size:20px; }
+    .model { color:var(--blue); font-size:13px; margin-bottom:15px; }
+    .agent p,.agent li { color:var(--muted); font-size:14px; line-height:1.45; }
+    button {
+      width:100%;
+      border:0;
+      border-radius:9px;
+      padding:11px 14px;
+      margin-top:10px;
+      background:var(--orange);
+      color:#111827;
+      font-weight:800;
+      cursor:pointer;
+    }
+    button.secondary { background:#263652; color:var(--text); }
+    button:disabled { opacity:.4; cursor:not-allowed; }
+    .output {
+      margin-top:14px;
+      padding:12px;
+      min-height:110px;
+      border:1px dashed #3b4f70;
+      border-radius:10px;
+      background:#091322;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;
+    }
+    .privacy {
+      margin:10px 0;
+      padding:8px;
+      border-left:3px solid var(--green);
+      color:var(--green);
+      font-size:12px;
+    }
+    .guidelines {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin:10px 0;
+    }
+    .tag {
+      background:#1d2b42;
+      color:#b9c9df;
+      border-radius:99px;
+      padding:5px 8px;
+      font-size:11px;
+    }
+    .status { margin-top:10px; color:var(--muted); font-size:13px; }
+    @media (max-width:900px) {
+      .flow,.source-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>SLM Agentic Incident Response</h1>
+  <p>Three task-sized models. One evidence-led human–humanoid incident workflow.</p>
+</header>
+
+<main>
+  <section class="setup">
+    <label for="backend">Cloudflare Worker URL</label>
+    <input id="backend" placeholder="https://slm-agentic-incident-response.your-name.workers.dev">
+    <div class="status" id="status">Backend will be connected after deployment.</div>
+  </section>
+
+  <section class="source">
+    <div class="source-grid">
+      <div>
+        <label for="scenario">Synthetic scenario</label>
+        <select id="scenario">
+          <option value="contact">Human contact</option>
+          <option value="nearMiss">Near miss</option>
+          <option value="property">Property collision</option>
+          <option value="privacy">Conduct / privacy</option>
+        </select>
+      </div>
+      <div>
+        <label for="transcript">Voice-transcribed site report</label>
+        <textarea id="transcript"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="flow">
+    <article class="agent">
+      <div class="step">Step 1</div>
+      <h2>Incident Log Agent</h2>
+      <div class="model">Llama 3.1 8B Fast</div>
+      <p>Interprets Singlish and English–Malay–Chinese code-switching, redacts synthetic PII, and creates one incident card.</p>
+      <div class="privacy">Simulated local privacy boundary</div>
+      <button id="logButton">Create Log</button>
+      <div class="output" id="logOutput">No incident card yet.</div>
+    </article>
+
+    <article class="agent">
+      <div class="step">Step 2</div>
+      <h2>Triage Agent</h2>
+      <div class="model">Llama 3.2 3B</div>
+      <p>Sets severity, routes the incident, and recommends immediate containment.</p>
+      <button id="triageButton" disabled>Triage</button>
+      <div class="output" id="triageOutput">Waiting for Agent 1.</div>
+    </article>
+
+    <article class="agent">
+      <div class="step">Step 3</div>
+      <h2>RCA Agent</h2>
+      <div class="model">Qwen3 30B-A3B</div>
+      <div class="guidelines">
+        <span class="tag">Transport</span>
+        <span class="tag">Facilities</span>
+        <span class="tag">Cybersecurity</span>
+        <span class="tag">20 prior incidents</span>
+        <span class="tag">Slack expert</span>
+      </div>
+      <label for="expertReply">Robotics expert Slack reply</label>
+      <textarea id="expertReply" placeholder="Slack integration will populate this field."></textarea>
+      <button class="secondary" id="slackButton" disabled>Ask Expert via Slack</button>
+      <button id="rcaButton" disabled>Generate RCA</button>
+      <div class="output" id="rcaOutput">Waiting for triage and expert input.</div>
+    </article>
+  </section>
+</main>
+
+<script>
+  const scenarios = {
+    contact: `Eh supervisor, just now 10:42 at Lobby B, humanoid HMD-07 bumped into Mr Tan Wei Ming, resident ID R-1042. He said his left arm pain a bit. Robot stopped after staff tekan emergency button. His phone is 8123 4567.`,
+    nearMiss: `Tadi dekat loading bay, robot HMD-12 hampir langgar makcik pushing stroller. Nasib operator shout "stop lah" and block it. Time around 2:15pm. No injury, but robot macam never detect orang crossing.`,
+    property: `At Block C lift lobby, HMD-03 carrying supplies then 转身太快 and hit the glass door. Door cracked, nobody hurt. Facilities uncle Lim saw it around 09:20. Robot asset tag RB-3308.`,
+    privacy: `Robot HMD-09 suddenly announced Madam Siti's medical appointment and room number loudly in common area. 很多人听到. Happened 4:05pm near dining hall. Staff muted the robot straight away.`
+  };
+
+  const backend = document.querySelector("#backend");
+  const scenario = document.querySelector("#scenario");
+  const transcript = document.querySelector("#transcript");
+  const status = document.querySelector("#status");
+  const expertReply = document.querySelector("#expertReply");
+  const logButton = document.querySelector("#logButton");
+  const triageButton = document.querySelector("#triageButton");
+  const slackButton = document.querySelector("#slackButton");
+  const rcaButton = document.querySelector("#rcaButton");
+  const logOutput = document.querySelector("#logOutput");
+  const triageOutput = document.querySelector("#triageOutput");
+  const rcaOutput = document.querySelector("#rcaOutput");
+
+  const sessionId = crypto.randomUUID();
+  let incidentCard;
+  let triageCard;
+
+  backend.value = localStorage.getItem("workerUrl") || "";
+  transcript.value = scenarios[scenario.value];
+
+  scenario.addEventListener("change", () => {
+    transcript.value = scenarios[scenario.value];
+    incidentCard = undefined;
+    triageCard = undefined;
+    logOutput.textContent = "No incident card yet.";
+    triageOutput.textContent = "Waiting for Agent 1.";
+    rcaOutput.textContent = "Waiting for triage and expert input.";
+    triageButton.disabled = true;
+    slackButton.disabled = true;
+    rcaButton.disabled = true;
+  });
+
+  backend.addEventListener("change", () => {
+    localStorage.setItem("workerUrl", backend.value.trim());
+  });
+
+  async function api(path, payload) {
+    const base = backend.value.trim().replace(/\/$/, "");
+    if (!base) throw new Error("Enter the deployed Cloudflare Worker URL first.");
+
+    status.textContent = `Calling ${path}…`;
+    const response = await fetch(`${base}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, ...payload })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || `Request failed: ${response.status}`);
+    status.textContent = "Connected to Cloudflare Worker.";
+    return data;
+  }
+
+  logButton.addEventListener("click", async () => {
+    try {
+      logButton.disabled = true;
+      incidentCard = await api("/api/log", { transcript: transcript.value });
+      logOutput.textContent = JSON.stringify(incidentCard, null, 2);
+      triageButton.disabled = false;
+    } catch (error) {
+      logOutput.textContent = error.message;
+    } finally {
+      logButton.disabled = false;
+    }
+  });
+
+  triageButton.addEventListener("click", async () => {
+    try {
+      triageButton.disabled = true;
+      triageCard = await api("/api/triage", { card: incidentCard });
+      triageOutput.textContent = JSON.stringify(triageCard, null, 2);
+      slackButton.disabled = false;
+      rcaButton.disabled = false;
+    } catch (error) {
+      triageOutput.textContent = error.message;
+      triageButton.disabled = false;
+    }
+  });
+
+  slackButton.addEventListener("click", async () => {
+    try {
+      const result = await api("/api/slack/ask", {
+        card: incidentCard,
+        triage: triageCard
+      });
+      expertReply.value = result.expertReply || result.message || "";
+    } catch (error) {
+      expertReply.value = error.message;
+    }
+  });
+
+  rcaButton.addEventListener("click", async () => {
+    try {
+      rcaButton.disabled = true;
+      const result = await api("/api/rca", {
+        card: incidentCard,
+        triage: triageCard,
+        expertReply: expertReply.value
+      });
+      rcaOutput.textContent = result.rca;
+    } catch (error) {
+      rcaOutput.textContent = error.message;
+    } finally {
+      rcaButton.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

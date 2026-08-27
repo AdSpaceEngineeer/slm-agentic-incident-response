@@ -1,0 +1,45 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "slm-agentic-incident-response",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-25",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "ai": {
+    "binding": "AI"
+  },
+
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "INCIDENT_LOG_AGENT",
+        "class_name": "IncidentLogAgent"
+      },
+      {
+        "name": "TRIAGE_AGENT",
+        "class_name": "TriageAgent"
+      },
+      {
+        "name": "RCA_AGENT",
+        "class_name": "RcaAgent"
+      }
+    ]
+  },
+
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "IncidentLogAgent",
+        "TriageAgent",
+        "RcaAgent"
+      ]
+    }
+  ],
+
+  "observability": {
+    "enabled": true
+  },
+
+  "upload_source_maps": true
+}
